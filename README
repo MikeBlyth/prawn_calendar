@@ -1,0 +1,21 @@
+Prawn_calendar is a very rough first draft, put on github mainly for safekeeping rather than sharing, but you're obviously welcome to use it or extend it as you want. 
+
+The idea is to use it like this:
+
+    calendar = CalendarMonthPdf.new(10, 2010, :page_size=>"A4", :page_layout=>:landscape)
+
+where 10,2010 represents the month and year. All the usual Prawn::Document initializing parameters can be used as well. Additionally there are these
+* :day_numbers => false  means do not number the boxes
+* :margins => _n_  :  apply _n_ points margin all around calendar, in addition to normal page margins   
+* :title => |:month|:month_year|:none|"string"|   (default is :month_year)
+* :title_format => _hash_    (Prawn formatting parameters to be applied to title) 
+* :day_number_format => _hash_  (formatting for day numbers) 
+* :box => _boolean_  (draw box at page margins)
+Some of these have not even been tested yet.
+
+After being created, the document can be used like any other Prawn document (i.e. you can put text and graphics on it). Currently there is one method available:
+    in_box_for_day(day)
+This creates a bounding_box inside the calendar cell for the given day of the month (e.g. 15 for 15th of month). Then in the bounding box you can do whatever you want, such as add text or color. Example:
+    in_box_for_day(25) {text "Christmas", :align=>:center, :valign=>:center}
+    in_day(24) {text "Christmas eve"} 
+in_day() is an alias for in_box_for_day
