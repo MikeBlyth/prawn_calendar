@@ -1,4 +1,5 @@
 require 'prawn_extend'
+require 'reports_helper'
 
 # Prawn document to generate PDF calendar for a given month
 class CalendarMonthPdf < Prawn::Document
@@ -58,25 +59,26 @@ include ReportsHelper
         # Now, within new bounding_box, everything is relative to calendar itself, not the page or page margins!
         draw_horizontal_lines
         draw_vertical_lines
-        # Number the boxes
-        unless params[:day_numbers] == false
-          (1..@last.day).each do |d|
-            in_box_for_day(d) do
-              text d.to_s, {:size=>10, :align=>:left}.merge(params[:day_number_format] || {})
-            end   
-          end
-        end
       end  
+      # Number the boxes
+      unless params[:day_numbers] == false
+        (1..@last.day).each do |d|
+          in_box_for_day(d) do
+            text d.to_s, {:size=>10, :align=>:left}.merge(params[:day_number_format] || {})
+          end   
+        end
+      end
     end
 
     # Generate a bounding_box to fit in the cell for the given day. in_day is an alias.
     # Used just like a bounding_box, for example
     # * in_box_for_day(25) {text "Christmas", :align=>:center, :valign=>:center}
     # * in_day(24) {text "Christmas eve"} 
+    # Bounds are based on page margins (initial setup) and not on the bottom-left corner of the calendar
     def in_box_for_day(day)
       box_corner = day_to_xy(day)
-      box_corner[0] = box_corner[0]+CELL_PADDING
-      box_corner[1] = box_corner[1]-CELL_PADDING
+      box_corner[0] = box_corner[0]+CELL_PADDING+@margins
+      box_corner[1] = box_corner[1]-CELL_PADDING+@margins
       box_width = @cell_width-2*CELL_PADDING
       box_height = @cell_height - 2*CELL_PADDING
       bounding_box(box_corner, :width=>box_width, :height=>box_height) do
